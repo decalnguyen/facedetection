@@ -1,5 +1,8 @@
-FROM postgres:alpine3.17
+FROM pgvector/pgvector:pg16
 
 ENV POSTGRES_PASSWORD=test123
 
-COPY ./init.sql /docker-entrypoint-initdb.d/
+ENV POSTGRES_USER=nhattoan
+
+
+#COPY init.sql /docker-entrypoint-initdb.d/
