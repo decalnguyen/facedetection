@@ -1,0 +1,29 @@
+version: '3'
+networks: 
+  iot: 
+    internal: true
+services: 
+  cv_module:
+    restart: always
+    container_name: cv_module
+    build: .
+    networks: 
+    - iot
+  postgres:
+    restart: on_failure  
+    container_name: postgres
+   # image: postgres
+    build: ./database 
+    environment:
+     PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+    - 5432:5432
+    volumes: 
+    - progresDB_data:/var/lib/postgresql/data
+    - ./database/postgres.conf:/database/config/postgres.conf
+    networks:
+    - iot
+volumes:
+  progresDB_data:
+
+    
