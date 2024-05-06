@@ -46,7 +46,7 @@ embedding = ibed.to_embeddings(img)[0]
 
 conn = psycopg2.connect("postgresql://postgres:test123@localhost:5432/cv_module")
 cur = conn.cursor()
-cur.execute('INSERT INTO pictures values (%s,%s)', (file_name, embedding.tolist()))
+#cur.execute('INSERT INTO pictures values (%s,%s)', (file_name, embedding.tolist()))
 conn.commit()
 conn.close()
 
@@ -75,7 +75,7 @@ for x, y, w, h in faces:
     # calculating the embeddings
     slack_img_embedding = ibed.to_embeddings(pil_image)[0]
 
-conn = psycopg2.connect()
+conn = psycopg2.connect("postgresql://postgres:test123@localhost:5432/cv_module")
 cur = conn.cursor()
 string_rep = "[" + ",".join(str(x) for x in slack_img_embedding.tolist()) + "]"
 cur.execute("SELECT picture FROM pictures ORDER BY embedding <-> %s LIMIT 5;", (string_rep,))
