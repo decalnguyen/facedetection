@@ -82,3 +82,4 @@ cur.execute("SELECT picture FROM pictures ORDER BY embedding <-> %s LIMIT 5;", (
 rows = cur.fetchall()
 for row in rows:
     print(row)
+print(rows)
