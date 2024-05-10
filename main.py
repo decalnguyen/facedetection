@@ -4,7 +4,42 @@ import numpy as np
 from imgbeddings import imgbeddings
 from PIL import Image
 import psycopg2
+import paho.mqtt import client as mqtt 
 
+
+broker = 'broker.emqx.io'
+port = 1883 
+topic = "door/status"
+def mqtt_connection():
+    def on_connect(client, userdata, flags, rc):
+        if rc == 0:
+            print("Connected to broker")
+        else:
+            print("Connection failed")
+            
+    client.on_connect = connect
+    client.connect(broker, port)
+    return client 
+def publish(client, topic, msg):
+    while True:
+        time.sleep(1)
+        error = client.publish(topic, msg)
+
+        if error[0] == 0:
+            print("Sent '{msg}' to topic '{topic}' ")
+        else: 
+            print("Failed to send message")
+    
+
+def Handdle_mqtt_function(msg):
+    client = mqtt_connection()
+    publish(client, topic, msg)
+
+
+
+
+
+    
 # loading the Haar Cascade algorithm file into alg variable
 alg = "haarcascade_frontalface_default.xml"
 
@@ -80,6 +115,10 @@ cur = conn.cursor()
 string_rep = "[" + ",".join(str(x) for x in slack_img_embedding.tolist()) + "]"
 cur.execute("SELECT picture FROM pictures ORDER BY embedding <-> %s LIMIT 5;", (string_rep,))
 rows = cur.fetchall()
-for row in rows:
-    print(row)
-print(rows)
+
+
+if len(rows) > 0 :
+    msg = bytes("OPEN", 'utf-8')
+    Handdle_mqtt_function(res)
+else: 
+    print("Notify")
