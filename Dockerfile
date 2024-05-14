@@ -1,10 +1,14 @@
-FROM python:3.9-slim-bullseye
+FROM python
 
 WORKDIR /app
 
-COPY requirements.txt requirments.txt
+COPY requirements.txt ./
 
-RUN pip3 install -r requirements.txt
+COPY haarcascade_frontalface_default.xml ./
+
+RUN pip install --upgrade pip
+
+RUN pip install -r requirements.txt
 
 COPY . .
 

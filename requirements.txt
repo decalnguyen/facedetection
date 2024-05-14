@@ -1,4 +1,7 @@
-Defaulting to user installation because normal site-packages is not writeable
-Collecting torch
-  Downloading torch-2.3.0-cp310-cp310-manylinux1_x86_64.whl (779.1 MB)
-     ━━━━━━━━━━━━━━━━━━━                      371.3/779.1 MB 2.9 MB/s eta 0:02:20
+imgbeddings==0.1.0
+numpy==1.26.4
+opencv_python==4.9.0.80
+paho_mqtt==2.1.0
+Pillow==10.3.0
+psycopg2_binary==2.9.9
+pynput==1.7.6
