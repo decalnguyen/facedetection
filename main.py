@@ -4,14 +4,14 @@ import numpy as np
 from imgbeddings import imgbeddings
 from PIL import Image
 import psycopg2
-import paho.mqtt import client as mqtt 
+from paho.mqtt import client as mqtt 
 
 
 broker = 'broker.emqx.io'
 port = 1883 
-topic = "door/status"
+topic = "door/request"
 def mqtt_connection():
-    def on_connect(client, userdata, flags, rc):
+    def connect(client, userdata, flags, rc):
         if rc == 0:
             print("Connected to broker")
         else:
@@ -29,8 +29,6 @@ def publish(client, topic, msg):
             print("Sent '{msg}' to topic '{topic}' ")
         else: 
             print("Failed to send message")
-    
-
 def Handdle_mqtt_function(msg):
     client = mqtt_connection()
     publish(client, topic, msg)
@@ -86,7 +84,7 @@ conn.commit()
 conn.close()
 
 # loading the image path into file_name variable
-file_name = 'image2.jpg'
+file_name = 'tranthanh.jpg'
 
 # reading the image
 img = cv2.imread(file_name, 0)
@@ -119,6 +117,6 @@ rows = cur.fetchall()
 
 if len(rows) > 0 :
     msg = bytes("OPEN", 'utf-8')
-    Handdle_mqtt_function(res)
+    Handdle_mqtt_function(msg)
 else: 
-    print("Notify")
+    print("Khong co")

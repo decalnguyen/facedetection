@@ -12,7 +12,8 @@ import (
 const (
 	mqttBroker = "192.168.120.88:1883"
 	topicPub   = "door/status"
-	topicSub   = "door/resquest"
+	topicPubR  = "door/received"
+	topicSub   = "door/request"
 	user       = "mmtt21-2"
 	pass       = "mmtt212ttmm"
 	qos        = 0
@@ -41,18 +42,18 @@ func pub(client mqtt.Client, topic string, qos byte, sendPayload string) {
 
 	fmt.Println("Marshal error", err)
 
-	stt := client.Publish(topicPub, qos, false, encodedMes)
+	stt := client.Publish(topic, qos, false, encodedMes)
 	stt.Wait()
 	time.Sleep(time.Second)
 	log.Println("Successful publishing to MQTT Topic ")
 }
 
-func HandleMessageSensor(client mqtt.Client, message mqtt.Message) {
+func HandleMessage(client mqtt.Client, message mqtt.Message) {
 	data := string(message.Payload())
 
 	if data == "OPEN" {
 		//client.Publish(topicPub, 0, false, []byte("OPEN"))
-		pub(client, topicPub, 0, []byte("OPEN"))
+		pub(client, topicPubR, 0, "OPEN")
 	}
 }
 func reconnect() {}
@@ -71,7 +72,7 @@ var (
 var (
 	messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, message mqtt.Message) {
 		//var decodedMess Device
-		HandleMessageSensor(client, message)
+		HandleMessage(client, message)
 	}
 )
 
@@ -90,6 +91,5 @@ func main() {
 	for {
 		time.Sleep(1 * time.Second)
 	}
-	//pub(client, topicPub, qos, "RED")
 
 }
