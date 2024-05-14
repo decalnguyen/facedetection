@@ -1,0 +1,7 @@
+imgbeddings==0.1.0
+numpy==1.26.4
+opencv_python==4.9.0.80
+paho_mqtt==2.1.0
+Pillow==10.3.0
+psycopg2_binary==2.9.9
+pynput==1.7.6
