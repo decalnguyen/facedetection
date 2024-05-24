@@ -1,8 +1,6 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
 	"log"
 	"time"
 
@@ -31,29 +29,29 @@ func sub(client mqtt.Client, topic string, qos byte) {
 	log.Println("Successful subcribing to MQTT Topic")
 }
 
-func pub(client mqtt.Client, topic string, qos byte, sendPayload string) {
-	if stt := client.Connect(); stt.Wait() && stt.Error() != nil {
-		log.Println("Error connecting to MQTT broker: ", stt.Error())
-	} else {
-		log.Println("Device connected successfully to MQTT Broker: ", client.IsConnected())
-	}
+// func pub(client mqtt.Client, topic string, qos byte, sendPayload string) {
+// 	if stt := client.Connect(); stt.Wait() && stt.Error() != nil {
+// 		log.Println("Error connecting to MQTT broker: ", stt.Error())
+// 	} else {
+// 		log.Println("Device connected successfully to MQTT Broker: ", client.IsConnected())
+// 	}
 
-	encodedMes, err := json.Marshal(sendPayload)
+// 	encodedMes, err := json.Marshal(sendPayload)
 
-	fmt.Println("Marshal error", err)
+// 	fmt.Println("Marshal error", err)
 
-	stt := client.Publish(topic, qos, false, encodedMes)
-	stt.Wait()
-	time.Sleep(time.Second)
-	log.Println("Successful publishing to MQTT Topic ")
-}
+// 	stt := client.Publish(topic, qos, false, encodedMes)
+// 	stt.Wait()
+// 	time.Sleep(time.Second)
+// 	log.Println("Successful publishing to MQTT Topic ")
+// }
 
 func HandleMessage(client mqtt.Client, message mqtt.Message) {
 	data := string(message.Payload())
 
 	if data == "OPEN" {
 		//client.Publish(topicPub, 0, false, []byte("OPEN"))
-		pub(client, topicPubR, 0, "OPEN")
+		client.Publish(topicPubR, qos, false, []byte("OPEN"))
 	}
 }
 func reconnect() {}

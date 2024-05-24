@@ -4,25 +4,31 @@ import numpy as np
 from imgbeddings import imgbeddings
 from PIL import Image
 import psycopg2
-from paho.mqtt import client as mqtt 
+import paho.mqtt.client as mqtt 
+import time
+import requests
+# Initialize the camera
+cap = cv2.VideoCapture(0)
 
-
-broker = 'broker.emqx.io'
+broker = '192.168.120.88'
 port = 1883 
 topic = "door/request"
+user = "mmtt21-2"
+password = "mmtt212ttmm"
 def mqtt_connection():
-    def connect(client, userdata, flags, rc):
+    def on_connect(client, userdata, flags, rc):
         if rc == 0:
             print("Connected to broker")
         else:
             print("Connection failed")
-            
-    client.on_connect = connect
+    client = mqtt.Client()
+    client.username_pw_set(user, password)
+    client.on_connect = on_connect
     client.connect(broker, port)
     return client 
 def publish(client, topic, msg):
     while True:
-        time.sleep(1)
+        time.sleep(5)
         error = client.publish(topic, msg)
 
         if error[0] == 0:
@@ -33,90 +39,115 @@ def Handdle_mqtt_function(msg):
     client = mqtt_connection()
     publish(client, topic, msg)
 
-
-
-
-
-    
 # loading the Haar Cascade algorithm file into alg variable
 alg = "haarcascade_frontalface_default.xml"
 
 # passing the algorithm to OpenCV
 haar_cascade = cv2.CascadeClassifier(alg)
 
-# loading the image path into file_name variable
-file_name = 'image1.jpg'
+# # loading the image path into file_name variable
+# file_name = 'image1.jpg'
 
-# reading the image
-img = cv2.imread(file_name, 0)
+# # reading the image
+# img = cv2.imread(file_name, 0)
 
-# creating a black and white version of the image
-gray_img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+# # creating a black and white version of the image
+# gray_img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 
-# detecting the faces
-faces = haar_cascade.detectMultiScale(gray_img, scaleFactor=1.05, minNeighbors=2, minSize=(100, 100))
+# # detecting the faces
+# faces = haar_cascade.detectMultiScale(gray_img, scaleFactor=1.05, minNeighbors=2, minSize=(100, 100))
 
-# for each face detected
-for x, y, w, h in faces:
-    # crop the image to select only the face
-    cropped_image = img[y : y + h, x : x + w]
+# # for each face detected
+# for x, y, w, h in faces:
+#     # crop the image to select only the face
+#     cropped_image = img[y : y + h, x : x + w]
     
-    # loading the target image path into target_file_name variable
-    target_file_name = 'image_detect.jpg'
-    cv2.imwrite(target_file_name, cropped_image)
+#     # loading the target image path into target_file_name variable
+#     target_file_name = 'image_detect.jpg'
+#     cv2.imwrite(target_file_name, cropped_image)
 
-# loading the face image path into file_name variable
-file_name = 'image_detect.jpg'
+# # loading the face image path into file_name variable
+# file_name = 'image_detect.jpg'
 
-# opening the image
-img = Image.open(file_name)
+# # opening the image
+# img = Image.open(file_name)
 
-# loading the `imgbeddings`
-ibed = imgbeddings()
+# # loading the `imgbeddings`
+# ibed = imgbeddings()
 
-# calculating the embeddings
-embedding = ibed.to_embeddings(img)[0]
+# # calculating the embeddings
+# embedding = ibed.to_embeddings(img)[0]
 
-conn = psycopg2.connect("postgresql://postgres:test123@localhost:5432/cv_module")
-cur = conn.cursor()
-#cur.execute('INSERT INTO pictures values (%s,%s)', (file_name, embedding.tolist()))
-conn.commit()
-conn.close()
-
-# loading the image path into file_name variable
-file_name = 'tranthanh.jpg'
-
-# reading the image
-img = cv2.imread(file_name, 0)
-
-# creating a black and white version of the image
-gray_img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-
-# detecting the faces
-faces = haar_cascade.detectMultiScale(gray_img, scaleFactor=1.05, minNeighbors=2, minSize=(100, 100))
-
-# for each face detected in the image
-for x, y, w, h in faces:
-    # crop the image to select only the face
-    cropped_image = img[y : y + h, x : x + w]
-    
-    # Convert the NumPy array to a PIL image
-    pil_image = Image.fromarray(cropped_image)
-    
-    ibed = imgbeddings()
-    
-    # calculating the embeddings
-    slack_img_embedding = ibed.to_embeddings(pil_image)[0]
-
-conn = psycopg2.connect("postgresql://postgres:test123@localhost:5432/cv_module")
-cur = conn.cursor()
-string_rep = "[" + ",".join(str(x) for x in slack_img_embedding.tolist()) + "]"
-cur.execute("SELECT picture FROM pictures ORDER BY embedding <-> %s LIMIT 5;", (string_rep,))
-rows = cur.fetchall()
+# conn = psycopg2.connect("postgresql://nhattoan:test123@localhost:5432/cv_module")
+# cur = conn.cursor()
+# #cur.execute('INSERT INTO pictures values (%s,%s)', (file_name, embedding.tolist()))
+# conn.commit()
+# conn.close()
 
 
-if len(rows) > 0 :
-    msg = bytes("OPEN", 'utf-8')
-    Handdle_mqtt_function(msg)
-else: 
-    print("Khong co")
+while True:
+    # Capture frame-by-frame
+    ret, frame = cap.read()
+
+    # Display the resulting frame
+    cv2.imshow('frame', frame)
+
+    # Wait for a key press
+    key = cv2.waitKey(1) & 0xFF
+
+    if key == ord('r'):
+        # Capture the image when 'r' is pressed
+        cv2.imwrite('captured_image.jpg', frame)
+        print('Image captured')
+        # loading the image path into file_name variable
+        file_name = 'captured_image.jpg'
+
+        # reading the image
+        img = cv2.imread(file_name, 0)
+
+        # creating a black and white version of the image
+        gray_img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+
+        # detecting the faces
+        faces = haar_cascade.detectMultiScale(gray_img, scaleFactor=1.05, minNeighbors=2, minSize=(100, 100))
+
+        # for each face detected in the image
+        for x, y, w, h in faces:
+            # crop the image to select only the face
+            cropped_image = img[y : y + h, x : x + w]
+            
+            # Convert the NumPy array to a PIL image
+            pil_image = Image.fromarray(cropped_image)
+            
+            ibed = imgbeddings()
+            
+            # calculating the embeddings5000
+            slack_img_embedding = ibed.to_embeddings(pil_image)[0]
+
+        conn = psycopg2.connect("postgresql://nhattoan:test123@localhost:5432/cv_module")
+        cur = conn.cursor()
+        string_rep = "[" + ",".join(str(x) for x in slack_img_embedding.tolist()) + "]"
+        cur.execute("SELECT picture FROM pictures ORDER BY embedding <-> %s LIMIT 5;", (string_rep,))
+        rows = cur.fetchall()
+
+        if len(rows) < 0 :
+            msg = bytes("OPEN", 'utf-8')
+            Handdle_mqtt_function(msg)
+            #print("ok")
+        else: 
+
+            url = 'http://172.31.11.177:5000/upload'
+            file_path = 'captured_image.jpg'  # Replace with your image path
+
+            with open(file_path, 'rb') as img:
+                files = {'file': img}
+                response = requests.post(url, files=files)
+                print(response.text)
+
+    # Break the loop on 'q' key press
+    if key == ord('q'):
+        break
+
+# When everything done, release the capture
+cap.release()
+cv2.destroyAllWindows()

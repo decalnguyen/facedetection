@@ -1,20 +1,20 @@
 version: '3'
-networks: 
-  iot: 
-    internal: true
+#networks: 
+ # iot: 
+  #  internal: true
 services: 
-  cv_module:
-    restart: always
-    container_name: cv_module
-    build: .
-    networks: 
-    - iot
-  HandleService:
-    restart: always
-    container_name: HandleService
-    build: . /HandleService
-    networks:
-    - iot
+  #cv_module:
+  #  restart: always
+   # container_name: cv_module
+   # build: .
+   # networks: 
+   # - iot
+  #HandleService:
+  #  restart: always
+   # container_name: HandleService
+   # build: . /HandleService
+   # networks:
+   # - iot
   postgres:
     restart: always
     container_name: postgres
@@ -26,9 +26,7 @@ services:
     volumes: 
     - progresDB_data:/var/lib/postgresql/data
     - ./database/postgres.conf:/database/config/postgres.conf
-    networks:
-    - iot
+   # networks:
+    #- iot
 volumes:
   progresDB_data:
-
-    
