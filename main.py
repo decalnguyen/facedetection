@@ -35,6 +35,7 @@ def publish(client, topic, msg):
             print("Sent '{msg}' to topic '{topic}' ")
         else: 
             print("Failed to send message")
+        break
 def Handdle_mqtt_function(msg):
     client = mqtt_connection()
     publish(client, topic, msg)
@@ -45,14 +46,14 @@ alg = "haarcascade_frontalface_default.xml"
 # passing the algorithm to OpenCV
 haar_cascade = cv2.CascadeClassifier(alg)
 
-# #loading the image path into file_name variable
-# file_name = 'image3.jpg'
+#loading the image path into file_name variable
+file_name = 'nhattoan.jpg'
 
-# # reading the image
-# img = cv2.imread(file_name, 0)
+# reading the image
+img = cv2.imread(file_name, 0)
 
-# # creating a black and white version of the image
-# gray_img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+# creating a black and white version of the image
+gray_img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 
 # # detecting the faces
 # faces = haar_cascade.detectMultiScale(gray_img, scaleFactor=1.05, minNeighbors=2, minSize=(100, 100))
@@ -63,11 +64,11 @@ haar_cascade = cv2.CascadeClassifier(alg)
 #     cropped_image = img[y : y + h, x : x + w]
     
 #     # loading the target image path into target_file_name variable
-#     target_file_name = 'image_detect2.jpg'
+#     target_file_name = 'nhattoan_detect.jpg'
 #     cv2.imwrite(target_file_name, cropped_image)
 
 # # loading the face image path into file_name variable
-# file_name = 'image_detect2.jpg'
+# file_name = 'nhattoan_detect.jpg'
 
 # # opening the image
 # img = Image.open(file_name)
@@ -144,8 +145,9 @@ while True:
             print(f"Match found: {picture}")
             msg = bytes("OPEN", 'utf-8')
             Handdle_mqtt_function(msg)
-            print("ok")
+           # print("ok")
         else:
+            print("Not detect")
             url = 'http://172.31.11.177:5000/upload'
             file_path = 'captured_image.jpg'  # Replace with your image path
 
