@@ -45,8 +45,8 @@ alg = "haarcascade_frontalface_default.xml"
 # passing the algorithm to OpenCV
 haar_cascade = cv2.CascadeClassifier(alg)
 
-# # loading the image path into file_name variable
-# file_name = 'image1.jpg'
+# #loading the image path into file_name variable
+# file_name = 'image3.jpg'
 
 # # reading the image
 # img = cv2.imread(file_name, 0)
@@ -63,11 +63,11 @@ haar_cascade = cv2.CascadeClassifier(alg)
 #     cropped_image = img[y : y + h, x : x + w]
     
 #     # loading the target image path into target_file_name variable
-#     target_file_name = 'image_detect.jpg'
+#     target_file_name = 'image_detect2.jpg'
 #     cv2.imwrite(target_file_name, cropped_image)
 
 # # loading the face image path into file_name variable
-# file_name = 'image_detect.jpg'
+# file_name = 'image_detect2.jpg'
 
 # # opening the image
 # img = Image.open(file_name)
@@ -80,7 +80,7 @@ haar_cascade = cv2.CascadeClassifier(alg)
 
 # conn = psycopg2.connect("postgresql://nhattoan:test123@localhost:5432/cv_module")
 # cur = conn.cursor()
-# #cur.execute('INSERT INTO pictures values (%s,%s)', (file_name, embedding.tolist()))
+# cur.execute('INSERT INTO pictures values (%s,%s)', (file_name, embedding.tolist()))
 # conn.commit()
 # conn.close()
 
@@ -88,7 +88,9 @@ haar_cascade = cv2.CascadeClassifier(alg)
 while True:
     # Capture frame-by-frame
     ret, frame = cap.read()
-
+    if not ret:
+        print("Error reading frame from camera")
+        break
     # Display the resulting frame
     cv2.imshow('frame', frame)
 
@@ -127,15 +129,23 @@ while True:
         conn = psycopg2.connect("postgresql://nhattoan:test123@localhost:5432/cv_module")
         cur = conn.cursor()
         string_rep = "[" + ",".join(str(x) for x in slack_img_embedding.tolist()) + "]"
-        cur.execute("SELECT picture FROM pictures ORDER BY embedding <-> %s LIMIT 5;", (string_rep,))
-        rows = cur.fetchall()
+        cur.execute("""SELECT picture, embedding <-> %s AS distance FROM pictures ORDER BY distance LIMIT 1;""", (string_rep,))
 
-        if len(rows) < 0 :
+        # Fetch the result
+        row = cur.fetchone()
+
+        # Extract the picture and distance from the result
+        picture = row[0]
+        distance = row[1]
+
+        print(distance)
+
+        if distance <= 8:
+            print(f"Match found: {picture}")
             msg = bytes("OPEN", 'utf-8')
             Handdle_mqtt_function(msg)
-            #print("ok")
-        else: 
-
+            print("ok")
+        else:
             url = 'http://172.31.11.177:5000/upload'
             file_path = 'captured_image.jpg'  # Replace with your image path
 
