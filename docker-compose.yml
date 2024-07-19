@@ -15,6 +15,62 @@ services:
    # build: . /HandleService
    # networks:
    # - iot
+  emqx:
+    image: emqx/emqx
+    container_name: emqx
+    ports:
+      - 1884:1883
+      - 8083:8083 
+      - 8883:8883
+      - 8084:8084
+      - 18083:18083
+    volumes:
+    - ./emqx/conf/emqx.conf:/etc/emqx/emqx.conf
+    - ./emqx/conf/acl.conf:/etc/emqx/acl.conf
+    - vol-emqx-data:/opt/emqx/data
+    - vol-emqx-etc:/opt/emqx/etc
+    - vol-emqx-log:/opt/emqx/log
+    - ./daemon.json:/etc/docker/daemon.json
+    env_file:
+    - local_envs.env
+    networks:
+    - IOT-DMS
+    restart: on-failure
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+    - 3000:3000
+    links:
+    - postgres:postgres
+    volumes:
+    - grafana-storage:/var/lib/grafana
+    depends_on:
+    - postgres
+    - emqx
+    networks:
+    - IOT-DMS
+    #restart: always
+  prometheus:
+    build: ./prometheus
+    container_name: prometheus
+    ports:
+    - 9090:9090
+    command:
+    - --config.file=/etc/prometheus/prometheus.yml
+    - '--storage.tsdb.path=/prometheus'
+    - '--web.console.libraries=/etc/prometheus/console_libraries'
+    - '--web.console.templates=/etc/prometheus/consoles'
+    - '--web.enable-lifecycle'
+    volumes:
+    - prometheus-data:/prometheus
+    - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+    - IOT-DMS
+    depends_on:
+    - cadvisor
+    - postgres
+    - emqx
   postgres:
     restart: always
     container_name: postgres

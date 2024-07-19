@@ -51,6 +51,7 @@ func HandleMessage(client mqtt.Client, message mqtt.Message) {
 
 	if data == "OPEN" {
 		//client.Publish(topicPub, 0, false, []byte("OPEN"))
+		log.Println("Recieved successfully")
 		client.Publish(topicPubR, qos, false, []byte("OPEN"))
 	}
 }
